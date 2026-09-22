@@ -1,0 +1,19 @@
+diff --git a/ggml/src/ggml-cuda/vendors/hip.h b/ggml/src/ggml-cuda/vendors/hip.h
+index 2fc0fe9..25fe513 100644
+--- a/ggml/src/ggml-cuda/vendors/hip.h
++++ b/ggml/src/ggml-cuda/vendors/hip.h
+@@ -117,7 +117,13 @@
+ #define cudaStreamNonBlocking hipStreamNonBlocking
+ #define cudaStreamPerThread hipStreamPerThread
+ #define cudaStreamSynchronize hipStreamSynchronize
+-#define cudaStreamWaitEvent hipStreamWaitEvent
++// hipStreamWaitEvent has no default `flags` argument, unlike cudaStreamWaitEvent,
++// so calls in ggml-cuda.cu that omit it (relying on CUDA's default of 0) fail to
++// compile against this ROCm version. Restore the default via a thin wrapper.
++static inline hipError_t ggml_hip_streamWaitEvent(hipStream_t stream, hipEvent_t event, unsigned int flags = 0) {
++    return hipStreamWaitEvent(stream, event, flags);
++}
++#define cudaStreamWaitEvent ggml_hip_streamWaitEvent
+ #define cudaGraphExec_t hipGraphExec_t
+ #define cudaGraphNode_t hipGraphNode_t
+ #define cudaKernelNodeParams hipKernelNodeParams
