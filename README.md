@@ -151,4 +151,4 @@ dropped relative to what whisper.cpp's CUDA-compat macro assumes.
 
 ## License
 
-MIT
+Public domain, [The Unlicense](LICENSE).
