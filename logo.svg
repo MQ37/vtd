@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="vtd-title vtd-desc">
+  <title id="vtd-title">vtd mascot</title>
+  <desc id="vtd-desc">A cute chibi demon with small golden horns, big round eyes, a fanged grin, and a spade-tipped tail.</desc>
+  <defs>
+    <clipPath id="mouth">
+      <path d="M200 318 Q256 326 312 318 Q256 392 200 318 Z"/>
+    </clipPath>
+    <clipPath id="body">
+      <rect x="176" y="350" width="160" height="130" rx="40"/>
+    </clipPath>
+  </defs>
+
+  <g transform="translate(-6 -20)">
+    <!-- tail (behind everything) -->
+    <path d="M300 456 C352 486 446 486 450 438 C452 424 446 408 438 394" fill="none" stroke="#D63C3C" stroke-width="14" stroke-linecap="round"/>
+    <!-- spade tip, pre-rotated to follow the tail's end tangent -->
+    <path d="M422.8 367.3 C434.4 370.4 449.6 369.5 454.7 378.4 C459.8 387.2 453.5 396.7 442.7 395.1 L438.1 393.8 L436.9 398.5 C432.9 408.6 421.5 409.3 416.4 400.5 C411.3 391.6 419.7 378.9 422.8 367.3 Z" fill="#D63C3C"/>
+
+    <!-- horns (bases hidden behind head) -->
+    <path d="M130 198 C106 172 98 120 118 74 C148 106 166 140 178 166 Z" fill="#F7BF4F"/>
+    <path d="M382 198 C406 172 414 120 394 74 C364 106 346 140 334 166 Z" fill="#F7BF4F"/>
+    <!-- horn highlights -->
+    <path d="M114 138 C110 118 114 100 120 86" fill="none" stroke="#FFE9A6" stroke-width="6" stroke-linecap="round"/>
+    <path d="M398 138 C402 118 398 100 392 86" fill="none" stroke="#FFE9A6" stroke-width="6" stroke-linecap="round"/>
+
+    <!-- body -->
+    <rect x="176" y="350" width="160" height="130" rx="40" fill="#D63C3C"/>
+    <!-- head's shadow cast on the body -->
+    <path d="M256 118 C356 118 426 190 426 268 C426 352 350 400 256 400 C162 400 86 352 86 268 C86 190 156 118 256 118 Z" transform="translate(0 14)" fill="#B7323A" clip-path="url(#body)"/>
+
+    <!-- feet -->
+    <ellipse cx="224" cy="480" rx="24" ry="11" fill="#AF2E3B"/>
+    <ellipse cx="288" cy="480" rx="24" ry="11" fill="#AF2E3B"/>
+
+    <!-- head -->
+    <path d="M256 118 C356 118 426 190 426 268 C426 352 350 400 256 400 C162 400 86 352 86 268 C86 190 156 118 256 118 Z" fill="#F75C43"/>
+    <ellipse cx="196" cy="168" rx="58" ry="26" transform="rotate(-20 196 168)" fill="#FFFFFF" opacity="0.2"/>
+
+    <!-- blush -->
+    <ellipse cx="142" cy="304" rx="24" ry="14" fill="#FFB3A4" opacity="0.85"/>
+    <ellipse cx="370" cy="304" rx="24" ry="14" fill="#FFB3A4" opacity="0.85"/>
+
+    <!-- eyes -->
+    <ellipse cx="204" cy="252" rx="36" ry="42" fill="#FFFFFF"/>
+    <ellipse cx="308" cy="252" rx="36" ry="42" fill="#FFFFFF"/>
+    <ellipse cx="208" cy="258" rx="21" ry="27" fill="#2B1B33"/>
+    <ellipse cx="304" cy="258" rx="21" ry="27" fill="#2B1B33"/>
+    <circle cx="197" cy="243" r="9" fill="#FFFFFF"/>
+    <circle cx="297" cy="243" r="9" fill="#FFFFFF"/>
+    <circle cx="216" cy="272" r="4.5" fill="#FFFFFF"/>
+    <circle cx="312" cy="272" r="4.5" fill="#FFFFFF"/>
+
+    <!-- grin with tongue and two tiny fangs -->
+    <path d="M200 318 Q256 326 312 318 Q256 392 200 318 Z" fill="#4B1535"/>
+    <g clip-path="url(#mouth)">
+      <ellipse cx="256" cy="362" rx="26" ry="18" fill="#FF6F91"/>
+      <path d="M216 312 L226 336 L236 312 Z" fill="#FFFFFF"/>
+      <path d="M276 312 L286 336 L296 312 Z" fill="#FFFFFF"/>
+    </g>
+  </g>
+</svg>

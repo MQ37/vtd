@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.svg" alt="vtd mascot" width="160">
+</p>
+
 # vtd
 
 A tiny, no-UI, push-to-talk voice dictation daemon for Linux. Hold a key, talk,
