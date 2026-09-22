@@ -25,6 +25,15 @@ build script that got HIP acceleration working (see
 It should also work on any other AMD GPU ROCm supports, or CPU-only anywhere
 `whisper.cpp` runs.
 
+## Works well on Wayland
+
+Unlike tools built on `wtype` (which relies on the Wayland virtual-keyboard
+protocol and simply doesn't work on compositors that don't implement it, like
+mutter), `vtd` injects keystrokes through the kernel's `/dev/uinput` via
+`ydotool` — compositor-agnostic by construction. It's actively developed and
+tested on **Ubuntu with GNOME on Wayland**, where `wtype`-based tools fail
+outright, and the same approach should work unmodified on KDE, sway, or X11.
+
 ## Why
 
 Tools like [Handy](https://github.com/cjpais/handy) are great, but on GNOME/
