@@ -1,0 +1,18 @@
+# Sandboxed runtime for the Phonon-2 speech server used by vtd.
+#
+# Everything installed here is pinned: the base image by digest, every Python
+# wheel by sha256 (--require-hashes, binary wheels only, no build scripts run).
+# Regenerate the locks with scripts/update-phonon-lock.py.
+#
+# python:3.12-slim-trixie (Debian 13, glibc 2.41), multi-arch index digest.
+FROM docker.io/library/python:3.12-slim-trixie@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016
+
+ENV PIP_NO_CACHE_DIR=1 PIP_ROOT_USER_ACTION=ignore PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1
+
+COPY requirements-torch.lock requirements.lock /tmp/
+RUN pip install --require-hashes --only-binary=:all: --no-deps -r /tmp/requirements-torch.lock \
+ && pip install --require-hashes --only-binary=:all: --no-deps -r /tmp/requirements.lock \
+ && pip check \
+ && rm /tmp/*.lock
+
+COPY fetch_model.py /opt/vtd/fetch_model.py
