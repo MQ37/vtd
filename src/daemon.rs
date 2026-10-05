@@ -223,6 +223,8 @@ fn process_and_type(cfg: &Config, wav_path: &PathBuf) {
 
     let status = Command::new("ydotool")
         .arg("type")
+        .arg("--key-delay").arg(cfg.key_delay_ms.to_string())
+        .arg("--key-hold").arg(cfg.key_hold_ms.to_string())
         .arg("--")
         .arg(text)
         .status();

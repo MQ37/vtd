@@ -33,6 +33,8 @@ const FORWARDED_ENV_VARS: &[&str] = &[
     "VTD_WHISPER_BIN",
     "VTD_WHISPER_LD_LIBRARY_PATH",
     "VTD_TRIGGER_KEY",
+    "VTD_KEY_DELAY",
+    "VTD_KEY_HOLD",
 ];
 
 pub fn install(opts: &Options) {

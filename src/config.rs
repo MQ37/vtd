@@ -15,6 +15,8 @@ pub struct Config {
     pub whisper_ld_library_path: Option<String>,
     pub phonon_socket: PathBuf,
     pub trigger_key: u16,
+    pub key_delay_ms: u32,
+    pub key_hold_ms: u32,
 }
 
 /// `VTD_BACKEND` (phonon unless set to whisper); also the default for `vtd install`.
@@ -49,6 +51,8 @@ impl Config {
                 .ok()
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(KEY_RIGHTALT),
+            key_delay_ms: env_u32("VTD_KEY_DELAY", DEFAULT_KEY_DELAY_MS),
+            key_hold_ms: env_u32("VTD_KEY_HOLD", DEFAULT_KEY_HOLD_MS),
         }
     }
 }
@@ -62,6 +66,21 @@ pub fn default_phonon_socket() -> PathBuf {
         PathBuf::from(format!("/run/user/{uid}"))
     });
     runtime.join("vtd/phonon.sock")
+}
+
+/// ydotool's own defaults are 20 ms delay + 20 ms hold per key (~25 chars/s); these are
+/// ~4x faster while staying conservative enough for terminals, browsers and Electron apps.
+const DEFAULT_KEY_DELAY_MS: u32 = 5;
+const DEFAULT_KEY_HOLD_MS: u32 = 5;
+
+fn env_u32(name: &str, default: u32) -> u32 {
+    match std::env::var(name) {
+        Ok(v) => v.parse().unwrap_or_else(|_| {
+            eprintln!("vtd: ignoring invalid {name}={v:?} (expected milliseconds), using {default}");
+            default
+        }),
+        Err(_) => default,
+    }
 }
 
 /// KEY_RIGHTALT from linux/input-event-codes.h

@@ -123,7 +123,7 @@ the lock files, bump `IMAGE` in `src/phonon.rs`, and re-run `vtd install`.
 4. The recording is POSTed (via `curl`) to the Phonon server on its Unix socket
    (`/v1/audio/transcriptions`, OpenAI-compatible). With the whisper backend it is passed to
    `whisper-cli` instead.
-5. The resulting text is typed into whatever's focused via `ydotool type`.
+5. The resulting text is typed into whatever's focused via `ydotool type` (5 ms delay + 5 ms hold per key by default; lower `VTD_KEY_DELAY`/`VTD_KEY_HOLD` for more speed, raise them if an app drops characters).
 
 vtd itself is one Rust binary with zero crates; it shells out to `pw-record`, `curl`, `ydotool`
 and `systemctl`.
@@ -162,6 +162,8 @@ if they are set when you run it (except `VTD_PHONON_SOCKET`, which only applies 
 | `VTD_BACKEND` | `phonon` | `phonon` or `whisper` |
 | `VTD_KEYBOARD_DEVICE` | autodetected | `/dev/input/eventN` for your keyboard |
 | `VTD_TRIGGER_KEY` | `100` (`KEY_RIGHTALT`) | Linux key code to hold |
+| `VTD_KEY_DELAY` | `5` | ms between typed keys (`ydotool type --key-delay`; ydotool's own default is 20) |
+| `VTD_KEY_HOLD` | `5` | ms each key is held (`ydotool type --key-hold`; ydotool's own default is 20) |
 | `VTD_MIC_TARGET` | PipeWire default | PipeWire source target id/name |
 | `VTD_PHONON_SOCKET` | `$XDG_RUNTIME_DIR/vtd/phonon.sock` | Unix socket of the Phonon server |
 | `VTD_WHISPER_BIN` | `~/.local/share/vtd/whisper.cpp/build/bin/whisper-cli` | whisper-cli (backend, or fallback) |
