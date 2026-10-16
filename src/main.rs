@@ -3,6 +3,7 @@ mod daemon;
 mod install;
 mod keyboard;
 mod phonon;
+mod transcribe;
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -11,6 +12,7 @@ fn main() {
         None | Some("run") => daemon::run(config::Config::from_env()),
         Some("install") => install::install(&parse_install_flags(&args[1..])),
         Some("uninstall") => install::uninstall(args[1..].iter().any(|a| a == "--purge")),
+        Some("transcribe") => transcribe::run(&args[1..]),
         Some("status") => install::status(),
         Some("-h") | Some("--help") | Some("help") => print_help(),
         Some(other) => {
@@ -76,6 +78,9 @@ fn print_help() {
          \x20 vtd uninstall [--purge]\n\
          \x20                        Stop and remove the services; --purge also removes the Phonon\n\
          \x20                        image and downloaded model\n\
+         \x20 vtd transcribe FILE [-o|--output OUT.txt]\n\
+         \x20                        Transcribe an audio file (any format ffmpeg reads) with the\n\
+         \x20                        configured backend; text goes to OUT, or stdout without -o\n\
          \x20 vtd status             Show backend, model and service status\n\
          \n\
          Configuration (environment variables):\n\

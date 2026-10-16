@@ -181,7 +181,9 @@ fn transcribe_whisper(cfg: &Config, wav_path: &PathBuf) -> Option<String> {
     Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
-fn process_and_type(cfg: &Config, wav_path: &PathBuf) {
+/// Transcribe a 16 kHz mono WAV with the configured backend (Phonon, falling back to
+/// whisper.cpp when it is the explicit backend or a build is installed).
+pub fn transcribe(cfg: &Config, wav_path: &PathBuf) -> Option<String> {
     let phonon = if cfg.backend == Backend::Phonon {
         let started = Instant::now();
         match transcribe_phonon(&cfg.phonon_socket, wav_path) {
@@ -203,17 +205,18 @@ fn process_and_type(cfg: &Config, wav_path: &PathBuf) {
     };
     // whisper-cli is the explicit backend, or the fallback when the Phonon server is down
     // and a whisper.cpp build happens to be installed.
-    let text = match phonon {
-        Some(t) => t,
-        None if cfg.backend == Backend::Whisper || cfg.whisper_bin.exists() => match transcribe_whisper(cfg, wav_path) {
-            Some(t) => t,
-            None => return,
-        },
+    match phonon {
+        Some(t) => Some(t),
+        None if cfg.backend == Backend::Whisper || cfg.whisper_bin.exists() => transcribe_whisper(cfg, wav_path),
         None => {
             eprintln!("vtd: no transcription (is vtd-phonon.service running? see `vtd status`)");
-            return;
+            None
         }
-    };
+    }
+}
+
+fn process_and_type(cfg: &Config, wav_path: &PathBuf) {
+    let Some(text) = transcribe(cfg, wav_path) else { return };
     let text = text.as_str();
     if text.is_empty() {
         eprintln!("vtd: empty transcription, nothing to type");

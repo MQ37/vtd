@@ -53,6 +53,17 @@ vtd uninstall --purge       # ...and delete the Phonon image and downloaded mode
 
 Logs: `journalctl --user -u vtd-phonon -u vtd -f`.
 
+## Transcribing files
+
+```sh
+vtd transcribe meeting.m4a -o meeting.txt   # text goes to the file
+vtd transcribe meeting.m4a                  # ...or to stdout
+```
+
+Any format `ffmpeg` can read works (it is converted to 16 kHz mono WAV in `$XDG_RUNTIME_DIR`).
+It uses the same backend as dictation, so the Phonon server must be running (`vtd status`)
+or a whisper.cpp build installed. The exit status is non-zero if nothing was transcribed.
+
 ## Choosing a backend
 
 | | **Phonon-2** (default) | **whisper.cpp** |
@@ -125,8 +136,8 @@ the lock files, bump `IMAGE` in `src/phonon.rs`, and re-run `vtd install`.
    `whisper-cli` instead.
 5. The resulting text is typed into whatever's focused via `ydotool type` (5 ms delay + 5 ms hold per key by default; lower `VTD_KEY_DELAY`/`VTD_KEY_HOLD` for more speed, raise them if an app drops characters).
 
-vtd itself is one Rust binary with zero crates; it shells out to `pw-record`, `curl`, `ydotool`
-and `systemctl`.
+vtd itself is one Rust binary with zero crates; it shells out to `pw-record`, `curl`, `ydotool`,
+`systemctl` and (for `vtd transcribe`) `ffmpeg`.
 
 ## Why not `wtype`-based tools?
 
