@@ -108,13 +108,18 @@ Use whisper.cpp if you dictate in a language other than English:
 ./target/release/vtd install --backend whisper --model large-v3-turbo
 ```
 
-(Whisper models are fetched from the `ggerganov/whisper.cpp` Hugging Face repo without a
-checksum; the pinning described below applies to the Phonon backend.) `--model` accepts any standard ggml model: `tiny`, `tiny.en`, `base`, `base.en`,
+(Whisper models for `--backend whisper` are fetched from the `ggerganov/whisper.cpp` Hugging Face repo without a
+checksum; the pinning described below applies to the Phonon backend and the optional heavy mode.) `--model` accepts any standard ggml model: `tiny`, `tiny.en`, `base`, `base.en`,
 `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`,
 `large-v3-turbo`.
 
 If you installed Phonon and also have a whisper.cpp build (`VTD_WHISPER_BIN`), vtd falls
 back to it when the Phonon server is down.
+
+For recordings you care about, where accuracy matters and speed does not, add the optional
+[heavy mode](#heavy-mode-maximum-accuracy-for-recordings-you-care-about): full Whisper `large-v3` on the GPU
+via `vtd transcribe FILE --heavy`, handling Czech, English and the two mixed. It is a one-shot file
+command and does not replace the dictation backend.
 
 ## Security model
 
@@ -128,6 +133,19 @@ about what it pulls in and what that code can do.
 | Base image `python:3.12-slim-trixie` | Docker Hub | multi-arch index digest in [`phonon/Containerfile`](phonon/Containerfile) |
 | 40 Python packages (torch CPU, transformers, [`fermion-research`](https://pypi.org/project/fermion-research/) 0.2.7, …) | PyPI and the PyTorch CPU index | exact versions + sha256 of every acceptable wheel in [`phonon/requirements.lock`](phonon/requirements.lock) and [`phonon/requirements-torch.lock`](phonon/requirements-torch.lock); installed with `--require-hashes --only-binary=:all: --no-deps`, so no build scripts run and a substituted file fails the install |
 | Phonon-2 model | Hugging Face `FermionResearch/Phonon-2` | commit revision and per-file sha256 in [`phonon/fetch_model.py`](phonon/fetch_model.py) |
+
+**Heavy mode (optional, `vtd install --heavy`)** downloads:
+
+| What | From | Pinned by |
+|---|---|---|
+| Base image `debian:trixie-slim` | Docker Hub | multi-arch index digest in [`heavy/Containerfile`](heavy/Containerfile) |
+| whisper.cpp v1.9.5 source | GitHub release tarball | sha256 checked during the build |
+| Build and runtime packages (`cmake`, `libvulkan-dev`, `mesa-vulkan-drivers`, …) | Debian's signed apt repositories | **not** pinned by version or hash: they are whatever Debian ships when you build, unlike Phonon's hash-locked wheels |
+| `ggml-large-v3.bin` (3.1 GB) | Hugging Face `ggerganov/whisper.cpp` | commit revision and sha256 in [`src/heavy.rs`](src/heavy.rs), verified before use |
+
+Each `--heavy` run starts a throwaway container with `--network none`, `--read-only`, `--cap-drop all`,
+`--security-opt no-new-privileges`, a 16 GB memory and 512-process limit, read-only model and audio
+mounts, and only `/dev/dri` passed through for the GPU. The audio never leaves the machine.
 
 **What the speech server can do at runtime**
 
