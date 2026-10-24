@@ -1,0 +1,26 @@
+# Sandboxed whisper.cpp (Vulkan GPU build) for vtd's optional heavy model (ggml large-v3).
+#
+# Pinned: base image by digest, whisper.cpp source by release tag + sha256 (verified below).
+# Vulkan (Mesa RADV) needs only /dev/dri, no ROCm userspace. Packages come from Debian's signed apt repos.
+# Debian 13 trixie-slim, multi-arch index digest.
+ARG BASE=docker.io/library/debian:trixie-slim@sha256:4876fdea29cac1a33a3195f1eb1952feb1fca7dd6dd00be3e2f1879cf20d34d2
+
+FROM ${BASE} AS build
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates curl build-essential cmake libvulkan-dev glslc glslang-tools spirv-headers \
+    && rm -rf /var/lib/apt/lists/*
+# whisper.cpp v1.9.5 (tag object d2a764c648779feb36d44363f212a29b00aad1af)
+ARG WHISPER_SHA256=ff1a9053feb509ff9d7729703355541ae9690073a6b1c40eb692c962e0dc1720
+RUN curl -fsSL -o /w.tgz https://github.com/ggml-org/whisper.cpp/archive/refs/tags/v1.9.5.tar.gz \
+    && echo "${WHISPER_SHA256}  /w.tgz" | sha256sum -c - \
+    && mkdir /src && tar xzf /w.tgz -C /src --strip-components=1
+RUN cmake -S /src -B /build -DCMAKE_BUILD_TYPE=Release -DGGML_VULKAN=ON -DGGML_NATIVE=OFF -DBUILD_SHARED_LIBS=OFF \
+        -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON -DWHISPER_BUILD_SERVER=OFF \
+    && cmake --build /build -j"$(nproc)" --target whisper-cli
+
+FROM ${BASE}
+RUN apt-get update && apt-get install -y --no-install-recommends libvulkan1 mesa-vulkan-drivers libgomp1 libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /build/bin/whisper-cli /usr/local/bin/whisper-cli
+ENTRYPOINT ["/usr/local/bin/whisper-cli"]

@@ -57,12 +57,12 @@ fn sandbox_args() -> Vec<String> {
     .collect()
 }
 
-fn mount(host: &Path, container: &str, mode: &str) -> Vec<String> {
+pub(crate) fn mount(host: &Path, container: &str, mode: &str) -> Vec<String> {
     // `z` relabels for SELinux hosts and is ignored elsewhere.
     vec!["-v".to_string(), format!("{}:{container}:{mode},z", host.display())]
 }
 
-fn run(podman: &Path, args: &[String]) -> Result<(), String> {
+pub(crate) fn run(podman: &Path, args: &[String]) -> Result<(), String> {
     match Command::new(podman).args(args).status() {
         Ok(s) if s.success() => Ok(()),
         Ok(s) => Err(format!("`podman {}` exited with {s:?}", args.first().map(String::as_str).unwrap_or(""))),

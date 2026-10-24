@@ -64,6 +64,33 @@ Any format `ffmpeg` can read works (it is converted to 16 kHz mono WAV in `$XDG_
 It uses the same backend as dictation, so the Phonon server must be running (`vtd status`)
 or a whisper.cpp build installed. The exit status is non-zero if nothing was transcribed.
 
+### Heavy mode: maximum accuracy for recordings you care about
+
+```sh
+vtd install --heavy                                  # one-time: image + 3.1 GB model, touches no services
+vtd transcribe meeting.m4a --heavy -o meeting.txt    # slow and very accurate
+```
+
+`--heavy` runs OpenAI's full Whisper `large-v3` (not the turbo) through whisper.cpp **on the GPU**
+(Vulkan, so it needs only `/dev/dri`, no ROCm install), with beam search 5 and automatic language
+detection. It keeps each word in the language it was spoken, so **Czech and English mixed in one
+recording** come out right. Dictation and plain `vtd transcribe` keep using the fast default backend.
+
+Measured on a 41 s Czech/English clip on a Ryzen AI Max+ 395 (Radeon 8060S, 6.0-8.6 % word error rate
+against a hand-checked transcript; the other candidates scored 8.6 % to 63 %):
+
+| | time |
+|---|---|
+| `--heavy` on the GPU | ~7 s (about 5x faster than real time) |
+| same model on the CPU | ~52 s with whisper.cpp, ~590 s with PyTorch |
+
+Each file runs in a throwaway podman container with no network, a read-only root filesystem, no
+capabilities, read-only model and audio mounts, and only the GPU device passed in. The image pins the
+base image by digest and whisper.cpp by release tag and sha256; the model is pinned to a Hugging Face
+revision and sha256-verified ([`heavy/Containerfile`](heavy/Containerfile), `src/heavy.rs`). The GPU
+needs your user in the `render` group. Without `/dev/dri` it falls back to the CPU and is very slow.
+`vtd uninstall --purge` removes the image and model.
+
 ## Choosing a backend
 
 | | **Phonon-2** (default) | **whisper.cpp** |

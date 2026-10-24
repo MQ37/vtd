@@ -1,13 +1,16 @@
 use crate::config::Config;
 use crate::daemon;
+use crate::heavy;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-/// `vtd transcribe FILE [-o|--output OUT]`: one-shot file transcription using the
-/// configured backend (the Phonon server must be running, or a whisper.cpp build present).
+/// `vtd transcribe FILE [-o|--output OUT] [--heavy]`: one-shot file transcription using the
+/// configured backend (the Phonon server must be running, or a whisper.cpp build present), or
+/// with `--heavy` the sandboxed GPU whisper large-v3.
 pub fn run(args: &[String]) {
     let mut input: Option<PathBuf> = None;
     let mut output: Option<PathBuf> = None;
+    let mut use_heavy = false;
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
@@ -16,13 +19,14 @@ pub fn run(args: &[String]) {
                 output = Some(PathBuf::from(v));
                 i += 1;
             }
+            "--heavy" => use_heavy = true,
             a if a.starts_with('-') && a.len() > 1 => die(&format!("unknown transcribe option {a:?}")),
             a if input.is_none() => input = Some(PathBuf::from(a)),
             _ => die("expected exactly one audio file"),
         }
         i += 1;
     }
-    let Some(input) = input else { die("usage: vtd transcribe FILE [-o OUT.txt]") };
+    let Some(input) = input else { die("usage: vtd transcribe FILE [-o OUT.txt] [--heavy]") };
     if !input.is_file() {
         die(&format!("{} is not a file", input.display()));
     }
@@ -34,7 +38,11 @@ pub fn run(args: &[String]) {
     if let Err(e) = convert(&input, &wav) {
         die(&e);
     }
-    let text = daemon::transcribe(&Config::from_env(), &wav);
+    let text = if use_heavy {
+        heavy::transcribe(&wav).map_err(|e| eprintln!("vtd: {e}")).ok().filter(|t| !t.is_empty())
+    } else {
+        daemon::transcribe(&Config::from_env(), &wav)
+    };
     let _ = std::fs::remove_file(&wav);
     let Some(text) = text else { std::process::exit(1) };
 

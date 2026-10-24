@@ -1,5 +1,6 @@
 mod config;
 mod daemon;
+mod heavy;
 mod install;
 mod keyboard;
 mod phonon;
@@ -10,6 +11,13 @@ fn main() {
 
     match args.first().map(String::as_str) {
         None | Some("run") => daemon::run(config::Config::from_env()),
+        Some("install") if args[1..].iter().any(|a| a == "--heavy") => {
+            if args.len() > 2 {
+                eprintln!("vtd: `install --heavy` takes no other options");
+                std::process::exit(1);
+            }
+            heavy::install()
+        }
         Some("install") => install::install(&parse_install_flags(&args[1..])),
         Some("uninstall") => install::uninstall(args[1..].iter().any(|a| a == "--purge")),
         Some("transcribe") => transcribe::run(&args[1..]),
@@ -75,12 +83,16 @@ fn print_help() {
          \x20                        download the pinned model, install the server unit.\n\
          \x20                        whisper: download a whisper.cpp model (--model NAME, English and\n\
          \x20                        multilingual; needs a whisper.cpp build, see scripts/build-whisper.sh).\n\
+         \x20 vtd install --heavy   Optional: add the slow, very accurate whisper large-v3 model (GPU, sandboxed\n\
+         \x20                        podman, pinned and checksum-verified); used only by transcribe --heavy\n\
          \x20 vtd uninstall [--purge]\n\
          \x20                        Stop and remove the services; --purge also removes the Phonon\n\
          \x20                        image and downloaded model\n\
-         \x20 vtd transcribe FILE [-o|--output OUT.txt]\n\
+         \x20 vtd transcribe FILE [-o|--output OUT.txt] [--heavy]\n\
          \x20                        Transcribe an audio file (any format ffmpeg reads) with the\n\
-         \x20                        configured backend; text goes to OUT, or stdout without -o\n\
+         \x20                        configured backend; text goes to OUT, or stdout without -o.\n\
+         \x20                        --heavy: use whisper large-v3 on the GPU instead (slow, most\n\
+         \x20                        accurate, auto-detects Czech/English; needs `install --heavy`)\n\
          \x20 vtd status             Show backend, model and service status\n\
          \n\
          Configuration (environment variables):\n\

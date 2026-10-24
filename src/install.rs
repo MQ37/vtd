@@ -1,4 +1,5 @@
 use crate::config::{self, Backend};
+use crate::heavy;
 use crate::phonon;
 use std::path::Path;
 use std::process::Command;
@@ -230,6 +231,7 @@ pub fn uninstall(purge: bool) {
     run_systemctl(&["daemon-reload"]);
     if purge {
         phonon::purge();
+        heavy::purge();
         println!("vtd: service uninstalled and Phonon image and model removed.");
     } else {
         println!(
@@ -242,6 +244,7 @@ pub fn uninstall(purge: bool) {
 
 pub fn status() {
     phonon::status();
+    heavy::status();
     println!();
     let whisper_bin = std::env::var("VTD_WHISPER_BIN")
         .map(std::path::PathBuf::from)
