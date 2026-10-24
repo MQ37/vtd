@@ -1,0 +1,4 @@
+# vtd-bench plus the official qwen-asr stack in a separate path (needs transformers 4.57.6, not 5.x). Benchmark only.
+FROM localhost/vtd-bench:1
+COPY qwen.lock /tmp/qwen.lock
+RUN pip install --require-hashes --only-binary=:all: --no-deps --no-cache-dir --target /opt/qwenlib -r /tmp/qwen.lock && rm /tmp/qwen.lock

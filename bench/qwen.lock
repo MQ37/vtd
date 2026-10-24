@@ -1,0 +1,10 @@
+# GENERATED from `pip install --dry-run --no-deps --report` (index sha256). Wheels only. Installed with --target /opt/qwenlib.
+accelerate==1.12.0 --hash=sha256:3e2091cd341423207e2f084a6654b1efcd250dc326f2a37d6dde446e07cabb11
+dyNET38==2.2 --hash=sha256:8693bf8e98fdddfa116fa1e213f1c471be772e1b9e006ad5278a2b2a8f7b4d70
+huggingface_hub==0.36.2 --hash=sha256:48f0c8eac16145dfce371e9d2d7772854a4f591bcb56c9cf548accf531d54270
+nagisa==0.2.11 --hash=sha256:43f2a5a30aa4b5c3f9018062e4c892efb6c18ae80f0d67a9a0611aa3d260dc37
+qwen-asr==0.0.6 --hash=sha256:b9c55a38413298f3a990a4475467399daec6e8f4172363053fc42e2166c2dfd3
+six==1.17.0 --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274
+soynlp==0.0.493 --hash=sha256:2aed0ced1f0f74f7bdd0bdc24a979c5cb9ee4a28393642db52a83d174ed65b7a
+tokenizers==0.22.2 --hash=sha256:369cc9fc8cc10cb24143873a0d95438bb8ee257bb80c71989e3ee290e8d72c67
+transformers==4.57.6 --hash=sha256:4c9e9de11333ddfe5114bc872c9f370509198acf0b87a832a0ab9458e2bd0550

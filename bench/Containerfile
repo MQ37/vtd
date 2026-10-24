@@ -1,0 +1,4 @@
+# vtd-phonon plus a hash-locked librosa (needed by Canary's feature extractor). Benchmark only.
+FROM localhost/vtd-phonon:1
+COPY librosa.lock /tmp/librosa.lock
+RUN pip install --require-hashes --only-binary=:all: --no-deps --no-cache-dir -r /tmp/librosa.lock && pip check && rm /tmp/librosa.lock
